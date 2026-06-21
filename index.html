@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swala — Namibia's Vacancies, Tenders & Youth Opportunities</title>
+<meta name="description" content="Swala tracks vacancies, tenders and youth & community development opportunities from official Namibian government and national institutions, in one place.">
+<style>
+  :root{
+    --bg:#ffffff; --bg-soft:#f6f5f3; --panel:rgba(0,0,0,.025); --panel-solid:#ffffff;
+    --border:rgba(0,0,0,.10); --border-strong:rgba(0,0,0,.22);
+    --ink:#15130f; --ink-soft:#5a5650; --ink-dim:#92897e;
+    --cyan:#ff7a18; --cyan-dim:#cc5c0f; --violet:#111111; --violet-dim:#000000;
+    --vacancy:#ff7a18; --tender:#111111; --youth:#e85d04;
+    --green:#2e9e4f; --gold:#ff7a18; --red:#e0312b;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    min-height:100vh;
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(255,122,24,.08), transparent 45%),
+      radial-gradient(circle at 85% 10%, rgba(0,0,0,.05), transparent 45%);
+    background-attachment:fixed;
+  }
+  h1,h2,h3{font-weight:700; letter-spacing:-0.01em;}
+
+  /* MASTHEAD */
+  .masthead{
+    position:relative; overflow:hidden; padding:54px 24px 38px; text-align:center;
+    background:linear-gradient(180deg,#ffffff,#fdf3ea 80%);
+    border-bottom:1px solid var(--border);
+  }
+  .masthead::before{
+    content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(0,0,0,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,.05) 1px, transparent 1px);
+    background-size:42px 42px;
+    mask-image:radial-gradient(ellipse 70% 60% at 50% 0%, black, transparent 75%);
+  }
+  .masthead .inner{position:relative; z-index:1;}
+  .masthead .kicker{
+    letter-spacing:.22em; text-transform:uppercase; font-size:11.5px; color:var(--cyan); margin-bottom:14px; font-weight:700;
+  }
+  .masthead h1{
+    font-size:56px; margin:0; letter-spacing:.06em; color:var(--ink);
+    text-shadow:0 0 24px rgba(255,122,24,.25);
+  }
+  .masthead h1 span{color:var(--cyan); text-shadow:0 0 28px rgba(255,122,24,.45);}
+  .masthead p.tagline{font-size:15.5px; color:var(--ink-soft); max-width:600px; margin:14px auto 0; line-height:1.6;}
+  .masthead .credit{font-size:12px; color:var(--ink-dim); margin-top:22px; letter-spacing:.02em;}
+  .masthead .credit b{color:var(--ink-soft); font-weight:600;}
+
+  /* FILTER BAR */
+  .filterbar{
+    position:sticky; top:0; z-index:50; background:rgba(255,255,255,.88); backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+  }
+  .filterbar-inner{
+    max-width:1240px; margin:0 auto; padding:14px 24px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+  }
+  .filterbar input[type="text"]{
+    flex:1; min-width:200px; background:var(--panel-solid); border:1px solid var(--border); color:var(--ink);
+    padding:10px 14px; border-radius:10px; font-size:14px; outline:none; transition:border-color .15s;
+  }
+  .filterbar input:focus{border-color:var(--cyan);}
+  .filterbar input::placeholder{color:var(--ink-dim);}
+  .filterbar select{
+    background:var(--panel-solid); border:1px solid var(--border); color:var(--ink-soft);
+    padding:10px 12px; border-radius:10px; font-size:13.5px; outline:none; cursor:pointer; transition:border-color .15s;
+  }
+  .filterbar select:focus{border-color:var(--cyan);}
+  .tabs{display:flex; gap:8px; flex-wrap:wrap;}
+  .tab{
+    background:var(--panel-solid); border:1px solid var(--border); color:var(--ink-soft);
+    padding:9px 16px; border-radius:999px; font-size:13.5px; cursor:pointer; user-select:none; font-weight:600;
+    transition:all .15s;
+  }
+  .tab:hover{border-color:var(--border-strong);}
+  .tab.active{color:#fff; border-color:transparent;}
+  .tab[data-cat="all"].active{background:#15130f;}
+  .tab[data-cat="vacancy"].active{background:var(--vacancy);}
+  .tab[data-cat="tender"].active{background:var(--tender);}
+  .tab[data-cat="youth"].active{background:var(--youth);}
+  .results-count{font-size:12px; color:var(--ink-dim); padding:10px 24px 0; max-width:1240px; margin:0 auto; letter-spacing:.02em;}
+
+  main{max-width:1240px; margin:0 auto; padding:8px 24px 40px;}
+
+  /* EDITOR'S PICKS */
+  .picks-label{
+    font-size:12.5px; text-transform:uppercase; letter-spacing:.16em; color:var(--violet); font-weight:700;
+    margin:30px 0 14px; display:flex; align-items:center; gap:10px;
+  }
+  .picks-label::after{content:""; flex:1; height:1px; background:var(--border);}
+  .picks{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; margin-bottom:8px;}
+  .pick-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;
+    display:flex; flex-direction:column; backdrop-filter:blur(10px); transition:border-color .2s, transform .2s;
+  }
+  .pick-card:hover{transform:translateY(-2px);}
+  .pick-banner{height:100px; position:relative; overflow:hidden; background:#0d1320;}
+  .pick-banner img{width:100%; height:100%; object-fit:cover; display:block; filter:saturate(1.05) contrast(1.02);}
+  .pick-banner::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 40%, rgba(10,14,22,.55));}
+  .pick-body{padding:16px 18px 18px; display:flex; flex-direction:column; gap:6px;}
+  .pick-body h3{font-size:16.5px; margin:0; line-height:1.32; color:var(--ink);}
+  .pick-body .org{font-size:12px; color:var(--ink-soft); font-weight:600;}
+  .pick-body .due{font-size:12px; color:var(--cyan); font-weight:700; font-family:ui-monospace,Menlo,Consolas,monospace;}
+
+  /* SECTIONS */
+  .section-title{
+    display:flex; align-items:baseline; gap:10px; margin:42px 0 16px; font-size:22px; font-weight:700; color:var(--ink);
+    border-bottom:1px solid var(--border); padding-bottom:10px;
+  }
+  .section-title::before{content:""; width:8px; height:8px; border-radius:50%; align-self:center;}
+  .section-title.s-vacancy::before{background:var(--vacancy); box-shadow:0 0 10px var(--vacancy);}
+  .section-title.s-tender::before{background:var(--tender); box-shadow:0 0 10px var(--tender);}
+  .section-title.s-youth::before{background:var(--youth); box-shadow:0 0 10px var(--youth);}
+  .section-title .count{
+    font-size:12.5px; color:var(--ink-dim); font-weight:500; font-family:ui-monospace,Menlo,Consolas,monospace;
+  }
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px;}
+  .card{
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
+    overflow:hidden; display:flex; flex-direction:column; backdrop-filter:blur(10px);
+    transition:transform .15s, border-color .2s, box-shadow .2s;
+  }
+  .card:hover{transform:translateY(-3px); border-color:var(--border-strong);}
+  .card-banner{height:78px; position:relative; overflow:hidden; background:#0d1320;}
+  .card-banner img{width:100%; height:100%; object-fit:cover; display:block; filter:saturate(1.05) contrast(1.02);}
+  .card-banner::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 35%, rgba(10,14,22,.6));}
+  .card-banner .badge{
+    position:absolute; top:10px; left:10px; font-size:10px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.06em; padding:3px 9px; border-radius:6px; background:rgba(10,14,22,.72); color:#fff;
+    border:1px solid rgba(255,255,255,.25); z-index:2; backdrop-filter:blur(4px);
+  }
+  .card-banner .ribbon{
+    position:absolute; top:10px; right:10px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.05em;
+    padding:3px 9px; border-radius:6px; color:#06121a; z-index:2;
+  }
+  .ribbon.new{background:var(--green);}
+  .ribbon.closing{background:var(--red); color:#fff;}
+  .card-body{padding:15px 17px 17px; display:flex; flex-direction:column; gap:9px; flex:1;}
+  .card h3{font-size:16px; margin:0; line-height:1.35; color:var(--ink);}
+  .org{font-size:12px; color:var(--ink-soft); font-weight:700;}
+  .tagrow{display:flex; flex-wrap:wrap; gap:6px;}
+  .tag{
+    font-size:10.5px; background:rgba(0,0,0,.035); border:1px solid var(--border); color:var(--ink-soft);
+    padding:3px 8px; border-radius:6px; font-weight:600;
+  }
+  .dates{font-size:11.5px; color:var(--ink-dim); display:flex; flex-direction:column; gap:2px; font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .dates b{color:var(--ink-soft); font-weight:600;}
+  .desc{font-size:13px; color:var(--ink-soft); line-height:1.55;}
+  .card a.link{
+    margin-top:auto; font-size:13px; color:var(--cyan); text-decoration:none; font-weight:700;
+    display:flex; align-items:center; gap:6px; padding-top:7px; border-top:1px solid var(--border);
+  }
+  .card a.link:hover{color:var(--violet);}
+
+  /* GLOW STATES */
+  .glow-green{border-color:rgba(46,158,79,.5); box-shadow:0 0 0 1px rgba(46,158,79,.15), 0 0 18px rgba(46,158,79,.25);}
+  .glow-gold{border-color:rgba(255,122,24,.35); box-shadow:0 0 0 1px rgba(255,122,24,.08), 0 0 10px rgba(255,122,24,.12);}
+  .glow-red{border-color:rgba(224,49,43,.6); animation:pulse-red 1.8s ease-in-out infinite;}
+  @keyframes pulse-red{
+    0%,100%{box-shadow:0 0 0 1px rgba(224,49,43,.2), 0 0 10px rgba(224,49,43,.3);}
+    50%{box-shadow:0 0 0 1px rgba(224,49,43,.35), 0 0 24px rgba(224,49,43,.6);}
+  }
+
+  /* CONTACT */
+  .contact{
+    max-width:640px; margin:60px auto 0; padding:32px 28px; background:var(--panel);
+    border:1px solid var(--border); border-radius:var(--radius); backdrop-filter:blur(10px);
+  }
+  .contact h2{margin:0 0 6px; color:var(--ink); font-size:21px;}
+  .contact p.lead{color:var(--ink-soft); font-size:13px; margin:0 0 20px; line-height:1.5;}
+  .contact form{display:flex; flex-direction:column; gap:11px;}
+  .contact input, .contact textarea{
+    width:100%; background:var(--panel-solid); border:1px solid var(--border); color:var(--ink);
+    padding:11px 14px; border-radius:10px; font-size:14px; outline:none; font-family:inherit; transition:border-color .15s;
+  }
+  .contact input:focus, .contact textarea:focus{border-color:var(--cyan);}
+  .contact input::placeholder, .contact textarea::placeholder{color:var(--ink-dim);}
+  .contact textarea{min-height:100px; resize:vertical;}
+  .contact button{
+    background:linear-gradient(135deg,var(--cyan),var(--violet)); color:#fff; border:none; padding:12px 18px; border-radius:10px;
+    font-size:14px; font-weight:700; cursor:pointer; transition:opacity .15s, transform .15s;
+  }
+  .contact button:hover{opacity:.9; transform:translateY(-1px);}
+  .contact .confirm{font-size:12px; color:var(--green); display:none; margin-top:2px; font-weight:600;}
+
+  footer{
+    background:var(--bg-soft); color:var(--ink-dim); padding:38px 24px; margin-top:54px;
+    border-top:1px solid var(--border);
+  }
+  .footer-inner{max-width:1240px; margin:0 auto; display:flex; flex-direction:column; gap:11px;}
+  .footer-inner .wordmark{font-size:19px; color:var(--ink); font-weight:700; letter-spacing:.04em;}
+  .footer-inner .wordmark span{color:var(--cyan);}
+  .footer-legend{display:flex; gap:18px; flex-wrap:wrap; font-size:11.5px; color:var(--ink-dim); margin:4px 0;}
+  .footer-legend span{display:flex; align-items:center; gap:6px;}
+  .footer-legend i{width:8px; height:8px; border-radius:50%; display:inline-block;}
+  .footer-legend i.g{background:var(--green); box-shadow:0 0 6px var(--green);}
+  .footer-legend i.go{background:var(--cyan); box-shadow:0 0 6px var(--cyan);}
+  .footer-legend i.r{background:var(--red); box-shadow:0 0 6px var(--red);}
+  footer p{font-size:12px; line-height:1.65; color:var(--ink-dim); margin:0;}
+  footer a{color:var(--cyan); text-decoration:none;}
+
+  .empty{color:var(--ink-dim); text-align:center; padding:60px 0; font-size:14px;}
+  @media (max-width:600px){
+    .masthead h1{font-size:38px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="inner">
+    <div class="kicker">A Spacecode Solutions Publication</div>
+    <h1>SW<span>A</span>LA</h1>
+    <p class="tagline">Namibia's vacancies, tenders, and youth &amp; community development opportunities — gathered from official sources, in one place.</p>
+    <div class="credit">Swala is made possible by <b>Spacecode Solutions</b>, for the people of Namibia.</div>
+  </div>
+</div>
+
+<div class="filterbar">
+  <div class="filterbar-inner">
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-cat="all">All</div>
+      <div class="tab" data-cat="vacancy">Vacancies</div>
+      <div class="tab" data-cat="tender">Tenders</div>
+      <div class="tab" data-cat="youth">Youth &amp; Community</div>
+    </div>
+    <input type="text" id="search" placeholder="Search roles, institutions, keywords…">
+    <select id="filterField"><option value="all">Field / Sector — All</option></select>
+    <select id="filterQual"><option value="all">Qualification — All</option></select>
+    <select id="filterExp"><option value="all">Experience — All</option></select>
+  </div>
+</div>
+<div class="results-count" id="resultsCount"></div>
+
+<main>
+  <div class="picks-label">Editor's Picks — Closing Soon / Just Launched</div>
+  <div class="picks" id="picks"></div>
+
+  <div id="sections"></div>
+</main>
+
+<section class="contact" id="contact">
+  <h2>Get in touch</h2>
+  <p class="lead">Spotted outdated information, have a listing to suggest, or a question about Swala? Send us a message and we'll get back to you.</p>
+  <form id="contactForm">
+    <input type="text" id="cf-name" placeholder="Your name" required>
+    <input type="email" id="cf-email" placeholder="Your email" required>
+    <textarea id="cf-message" placeholder="Your message" required></textarea>
+    <button type="submit">Send Message</button>
+  </form>
+  <div class="confirm" id="cf-confirm">Opening your email app with the message ready to send…</div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="wordmark">SW<span>A</span>LA</div>
+    <div class="footer-legend">
+      <span><i class="g"></i> New listing (first 10 hours)</span>
+      <span><i class="go"></i> Open / standard listing</span>
+      <span><i class="r"></i> Closing within 10 hours</span>
+    </div>
+    <p>Compiled from public information on official Namibian government and institutional websites (.gov.na, .org.na, .com.na and named agency domains only — no unofficial scraper or aggregator job sites). Listings are removed automatically once their published closing date has passed. Always verify directly on the linked official source before applying, bidding, or signing anything. Information may change after publication; closing dates shown are as published by the issuing institution at time of writing.</p>
+    <p>Swala is made possible by <b style="color:#15130f">Spacecode Solutions</b>, for the people of Namibia. © 2026.</p>
+  </div>
+</footer>
+
+<script>
+// ---------- IMAGES ----------
+// Stock photography (Unsplash), mapped by sector/field. If a photo fails to load (network
+// restrictions, ad-blockers, hotlink limits) it is replaced automatically by an inline
+// gradient placeholder in the same category color — the banner never breaks.
+const PHOTO = {
+  office:"https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=700&q=65",
+  meeting:"https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=700&q=65",
+  construction:"https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=700&q=65",
+  finance:"https://images.unsplash.com/photo-1454165804606-c87ca85e1c93?auto=format&fit=crop&w=700&q=65",
+  health:"https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?auto=format&fit=crop&w=700&q=65",
+  agri:"https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=700&q=65",
+  edu:"https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=700&q=65",
+  ict:"https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=700&q=65",
+  youth:"https://images.unsplash.com/photo-1529390079861-591de354faf5?auto=format&fit=crop&w=700&q=65",
+  handshake:"https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=700&q=65",
+};
+const NS = "Not specified";
+
+function fallbackImg(cat){
+  const grad = {vacancy:["#ff7a18","#cc5c0f"], tender:["#3a3a3a","#000000"], youth:["#e85d04","#a83d00"]}[cat] || ["#ff7a18","#cc5c0f"];
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="700" height="400">'
+    + '<rect width="700" height="400" fill="#15130f"/>'
+    + '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">'
+    + '<stop offset="0" stop-color="' + grad[0] + '" stop-opacity="0.55"/>'
+    + '<stop offset="1" stop-color="' + grad[1] + '" stop-opacity="0.25"/>'
+    + '</linearGradient></defs>'
+    + '<rect width="700" height="400" fill="url(#g)"/>'
+    + '<g stroke="' + grad[0] + '" stroke-opacity="0.5" stroke-width="1.5" fill="none">'
+    + '<circle cx="610" cy="70" r="46"/><circle cx="610" cy="70" r="72"/>'
+    + '<line x1="0" y1="340" x2="700" y2="340"/><line x1="0" y1="320" x2="500" y2="320"/>'
+    + '</g></svg>';
+  return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+}
+
+// ---------- DATA ----------
+// photo: stock image key (see PHOTO above) — falls back to a themed gradient if unreachable
+// field: sector/field of operation, study or business
+// qualification / experience: as published, or "Not specified" if the source didn't state one
+// published / due: human-readable, as published, or "Not specified"/"Rolling"
+// publishedAt / dueAt: ISO datetime — drives the green/gold/red glow and auto-drop. Only set when the
+//   issuing institution published a genuine specific date; left null for standing notice-board pages
+//   (no fabricated urgency).
+// url: deepest verifiable official page — a dedicated vacancies/tenders subpage where one is known
+//   to exist; otherwise the institution's root domain (its only confirmed official presence).
+const data = [
+
+  // ===== FEATURED / SPECIFIC VACANCIES =====
+  {cat:"vacancy", photo:"finance", title:"External Vacancies — Multiple Posts", org:"Namibia Revenue Agency (NamRA)", featured:true,
+   field:"Finance, Tax & Revenue", qualification:"Diploma/Degree (Accounting, Tax, Audit)", experience:"Entry to mid-level",
+   published:"June 2026", due:"30 Jun 2026", publishedAt:"2026-06-01T08:00:00", dueAt:"2026-06-30T17:00:00",
+   desc:"Manager: Training & Organisational Development, Internal Audit, Procurement, Assistant Tax Officers, and Hygiene Officers across Windhoek, Swakopmund, Walvis Bay, Okahandja, Otjiwarongo, Rundu and more.",
+   url:"https://www.namra.org.na/about-us/page/vacancies/"},
+
+  {cat:"vacancy", photo:"office", title:"May 2026 Vacancy Circular", org:"Ministry of Justice & Labour Relations (MOJ)",
+   field:"Legal & Justice", qualification:"Varies by post", experience:"Varies by post",
+   published:"May 2026", due:NS, publishedAt:"2026-05-01T08:00:00", dueAt:null,
+   desc:"Ministry-wide vacancy notice listing current open posts across MOJ directorates.",
+   url:"https://moj.gov.na/vacancies"},
+
+  {cat:"vacancy", photo:"meeting", title:"PSM Circular — Public Service-wide Vacancies", org:"Office of the Prime Minister",
+   field:"Multi-sector / All Industries", qualification:"Varies by post", experience:"Varies by post",
+   published:"Monthly, rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"The master monthly listing of vacancies across every Namibian government ministry, office and agency — the authoritative source for public-service hiring.",
+   url:"https://www.gov.na/"},
+
+  // ===== MINISTRIES (national executive, post-2025 restructuring) =====
+  {cat:"vacancy", photo:"office", title:"Vacancies — Office of the President", org:"Office of the President",
+   field:"Executive / Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Notices for posts within the Office of the President.", url:"https://www.gov.na/"},
+
+  {cat:"vacancy", photo:"office", title:"Vacancies — Office of the Vice President", org:"Office of the Vice President",
+   field:"Executive / Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Notices for posts within the Office of the Vice President.", url:"https://www.gov.na/"},
+
+  {cat:"vacancy", photo:"office", title:"Vacancies", org:"Ministry of Defence & Veterans Affairs (MODVA)",
+   field:"Defence & Veterans Affairs", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Official defence ministry vacancy notices.", url:"https://modva.gov.na/vacancies"},
+
+  {cat:"vacancy", photo:"office", title:"Vacancies", org:"Ministry of Home Affairs, Immigration, Safety & Security",
+   field:"Home Affairs, Immigration & Security", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Vacancy notices covering Home Affairs, Immigration, Police and Correctional Services posts.", url:"https://mha.gov.na/"},
+
+  {cat:"vacancy", photo:"handshake", title:"Vacancies", org:"Ministry of International Relations & Trade (MIRCO)",
+   field:"Foreign Affairs & Trade", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Diplomatic and trade-mission related vacancy notices.", url:"https://mirco.gov.na/vacancies"},
+
+  {cat:"vacancy", photo:"finance", title:"Open Vacancies — Finance & Social Grants", org:"Ministry of Finance & Social Grants Management",
+   field:"Finance & Social Grants", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Document library of current vacancy adverts published by the ministry, including finance and grants-administration posts.", url:"https://mfpe.gov.na/vacancies"},
+
+  {cat:"vacancy", photo:"agri", title:"Vacancies", org:"Ministry of Agriculture, Fisheries, Water & Land Reform (MAWLR)",
+   field:"Agriculture, Fisheries & Water", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Vacancy notices for agriculture, fisheries, water and land reform posts.", url:"https://mawlr.gov.na/"},
+
+  {cat:"vacancy", photo:"edu", title:"Vacancies", org:"Ministry of Education, Innovation, Youth, Sport, Arts & Culture (MEIYSAC)",
+   field:"Education, Youth, Sport, Arts & Culture", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Teaching, youth-development and cultural-sector vacancy notices.", url:"https://www.meiysac.gov.na/"},
+
+  {cat:"vacancy", photo:"health", title:"Careers", org:"Ministry of Health & Social Services (MHSS)",
+   field:"Health & Social Services", qualification:"Varies (Nursing, Medical, Social Work, Support)", experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Nursing, medical, social-work and support-staff vacancies across state hospitals and clinics nationwide.", url:"https://mhss.gov.na/career"},
+
+  {cat:"vacancy", photo:"construction", title:"Bids & Vacancies", org:"Ministry of Industrialisation, Mines & Energy (MME)",
+   field:"Mines, Energy & Industrialisation", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Combined bids/vacancies notice board for the mines, energy and industrialisation ministry.", url:"https://www.mme.gov.na/bids-vacancies/"},
+
+  {cat:"vacancy", photo:"agri", title:"Vacancies", org:"Ministry of Environment & Tourism (MEFT)",
+   field:"Environment & Tourism", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Ministry notice board listing current vacancy advertisements.", url:"https://www.meft.gov.na/vacancies/"},
+
+  {cat:"vacancy", photo:"ict", title:"Vacancies", org:"Ministry of Information & Communication Technology (MICT)",
+   field:"ICT & Telecommunications", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"ICT, telecommunications, broadcasting, media and postal-sector vacancy notices.", url:"https://mict.gov.na/vacancies"},
+
+  {cat:"vacancy", photo:"youth", title:"Vacancies", org:"Ministry of Gender Equality & Child Welfare (MGECW)",
+   field:"Gender Equality & Child Welfare", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Social-welfare and child-protection related vacancy notices.", url:"https://mgecw.gov.na/"},
+
+  {cat:"vacancy", photo:"construction", title:"Vacancies", org:"Ministry of Works & Transport (MWT)",
+   field:"Works & Transport", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Engineering, works and transport-sector vacancy notices.", url:"https://mwt.gov.na/"},
+
+  {cat:"vacancy", photo:"construction", title:"Vacancies", org:"Ministry of Urban & Rural Development (MURD)",
+   field:"Urban & Rural Development", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Oversees regional and local authority governance; posts ministry-level and coordination vacancies.", url:"https://murd.gov.na/vacancies"},
+
+  {cat:"vacancy", photo:"office", title:"Vacancies — Office of the Attorney-General", org:"Office of the Attorney-General",
+   field:"Legal & Justice", qualification:"Legal qualifications (LLB and above)", experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Legal and prosecutorial vacancy notices from the Office of the Attorney-General.", url:"http://www.ag.gov.na/"},
+
+  {cat:"vacancy", photo:"meeting", title:"Vacancies", org:"National Planning Commission (NPC)",
+   field:"Multi-sector / All Industries", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Planning, statistics and development-coordination vacancy notices.", url:"https://www.npc.gov.na/vacancies/"},
+
+  // ===== REGIONAL COUNCILS (all 14) =====
+  {cat:"vacancy", photo:"meeting", title:"Vacancies", org:"Khomas Regional Council",
+   field:"Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Regional administration vacancy notices covering Windhoek and surrounding constituencies.", url:"http://www.khomasrc.gov.na/vacancies"},
+
+  {cat:"vacancy", photo:"meeting", title:"Vacancies", org:"Erongo Regional Council",
+   field:"Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Regional administration vacancy notices covering Swakopmund, Walvis Bay, Omaruru and Usakos.", url:"https://www.erc.com.na/vacancies/"},
+
+  {cat:"vacancy", photo:"meeting", title:"Vacancies", org:"Otjozondjupa Regional Council",
+   field:"Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Regional administration vacancy notices covering Otjiwarongo, Grootfontein and Okahandja.", url:"https://otjozondjuparc.gov.na/"},
+
+  {cat:"vacancy", photo:"meeting", title:"Vacancies", org:"Kavango East Regional Council",
+   field:"Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Regional administration vacancy notices covering Rundu and surrounding constituencies.", url:"https://kavangoeastrc.gov.na/"},
+
+  {cat:"vacancy", photo:"meeting", title:"Vacancies", org:"Kavango West Regional Council",
+   field:"Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Regional administration vacancy notices covering Nkurenkuru and surrounding constituencies.", url:"https://kavangowestrc.gov.na/vacancies"},
+
+  {cat:"vacancy", photo:"meeting", title:"Vacancies", org:"Zambezi Regional Council",
+   field:"Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Regional administration vacancy notices covering Katima Mulilo and surrounding constituencies.", url:"https://zambezirc.gov.na/vacancies"},
+
+  {cat:"vacancy", photo:"meeting", title:"Vacancies", org:"Ohangwena Regional Council",
+   field:"Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Regional administration vacancy notices covering Eenhana, Helao Nafidi and surrounding constituencies.", url:"https://ohangwenarc.gov.na/"},
+
+  {cat:"vacancy", photo:"meeting", title:"Vacancies", org:"Oshana Regional Council",
+   field:"Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Regional administration vacancy notices covering Oshakati, Ongwediva and Ondangwa.", url:"https://oshanarc.gov.na/"},
+
+  {cat:"vacancy", photo:"meeting", title:"Vacancies", org:"Oshikoto Regional Council",
+   field:"Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Regional administration vacancy notices covering Omuthiya, Tsumeb and Oniipa.", url:"https://oshikotorc.gov.na/"},
+
+  {cat:"vacancy", photo:"meeting", title:"Vacancies", org:"Omusati Regional Council",
+   field:"Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Regional administration vacancy notices covering Outapi, Okahao and Ruacana.", url:"https://omusatirc.gov.na/opportunities"},
+
+  {cat:"vacancy", photo:"meeting", title:"Vacancies", org:"Kunene Regional Council",
+   field:"Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Regional administration vacancy notices covering Opuwo, Khorixas and Kamanjab.", url:"https://kunenerc.gov.na/"},
+
+  {cat:"vacancy", photo:"meeting", title:"Regional Council Vacancies — Hardap", org:"Hardap Regional Council",
+   field:"Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Regional administration vacancy notices covering Mariental, Rehoboth and Aranos.", url:"https://hardaprc.gov.na/vacancies"},
+
+  {cat:"vacancy", photo:"meeting", title:"Regional Council Vacancies — Karas", org:"ǁKharas Regional Council",
+   field:"Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Vacancy notices for ǁKharas regional administration roles across Keetmanshoop, Lüderitz, Karasburg and Oranjemund.", url:"https://karasrc.gov.na/vacancies"},
+
+  {cat:"vacancy", photo:"meeting", title:"Regional Council Vacancies — Omaheke", org:"Omaheke Regional Council",
+   field:"Public Administration", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Vacancy notices for Omaheke regional administration roles covering Gobabis and surrounding constituencies.", url:"https://omahekerc.gov.na/vacancies"},
+
+  // ===== TOWN / MUNICIPAL COUNCILS =====
+  {cat:"vacancy", photo:"office", title:"Careers", org:"City of Windhoek",
+   field:"Local Authority / Municipal Services", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Municipal vacancy notices for Namibia's capital city.", url:"https://cityofwindhoek.erecruit.co/"},
+
+  {cat:"vacancy", photo:"office", title:"Vacancies", org:"Walvis Bay Municipality",
+   field:"Local Authority / Municipal Services", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Municipal vacancy notices for the Port of Walvis Bay.", url:"https://www.walvisbaycc.org.na/"},
+
+  {cat:"vacancy", photo:"office", title:"Vacancies", org:"Municipality of Swakopmund",
+   field:"Local Authority / Municipal Services", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Municipal vacancy notices for Swakopmund.", url:"https://www.swakopmun.com/index/vacancy"},
+
+  {cat:"vacancy", photo:"office", title:"Vacancies", org:"Keetmanshoop Municipality",
+   field:"Local Authority / Municipal Services", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Municipal vacancy notices for Keetmanshoop.", url:"https://www.keetmansmunicipality.org.na/"},
+
+  {cat:"vacancy", photo:"office", title:"Vacancies", org:"Oshakati Town Council",
+   field:"Local Authority / Municipal Services", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Town council vacancy notices for Oshakati.", url:"http://www.oshtc.na/"},
+
+  {cat:"vacancy", photo:"office", title:"Vacancies", org:"Ongwediva Town Council",
+   field:"Local Authority / Municipal Services", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Town council vacancy notices for Ongwediva.", url:"https://ongwediva.com.na/vacancies/"},
+
+  {cat:"vacancy", photo:"office", title:"Vacancies", org:"Ondangwa Town Council",
+   field:"Local Authority / Municipal Services", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Town council vacancy notices for Ondangwa.", url:"https://www.ondangwatc.org.na/vacancies/"},
+
+  {cat:"vacancy", photo:"office", title:"Vacancies", org:"Outapi Town Council",
+   field:"Local Authority / Municipal Services", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Town council vacancy notices for Outapi.", url:"https://outapitc.org.na/vacancies/"},
+
+  {cat:"vacancy", photo:"office", title:"Vacancies", org:"Nkurenkuru Town Council",
+   field:"Local Authority / Municipal Services", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Town council vacancy notices for Nkurenkuru.", url:"https://www.nkurenkurutc.com.na/vacancies.php"},
+
+  {cat:"vacancy", photo:"office", title:"Vacancies", org:"Eenhana Town Council",
+   field:"Local Authority / Municipal Services", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Town council vacancy notices for Eenhana.", url:"https://www.eenhanatc.na/vacancies/"},
+
+  {cat:"vacancy", photo:"office", title:"Vacancies", org:"Helao Nafidi Town Council",
+   field:"Local Authority / Municipal Services", qualification:NS, experience:NS, published:"Rolling", due:NS, publishedAt:null, dueAt:null,
+   desc:"Town council vacancy notices for Helao Nafidi.", url:"https://helaonafidi.org/"},
+
+  // ===== TENDERS =====
+  {cat:"tender", photo:"handshake", title:"All Open Bids", org:"Central Procurement Board of Namibia (CPBN)", featured:true,
+   field:"Multi-sector / All Industries", qualification:"N/A — business registration required", experience:"N/A",
+   published:"Rolling", due:"26 Jun – 5 Aug 2026", publishedAt:null, dueAt:"2026-08-05T17:00:00",
+   desc:"The national procurement authority — the single most comprehensive live list of open government tenders and bids across all sectors, incl. Anti-Corruption Commission offices (Oshakati), Roads Authority travel services, and Swakopmund wastewater treatment plant management.",
+   url:"https://www.cpbn.com.na/index/external/2"},
+
+  {cat:"tender", photo:"handshake", title:"Awarded Bids", org:"Central Procurement Board of Namibia (CPBN)",
+   field:"Multi-sector / All Industries", qualification:"N/A", experience:"N/A", published:"Rolling", due:"N/A — awarded", publishedAt:null, dueAt:null,
+   desc:"Public record of recently awarded tenders/contracts for transparency tracking.", url:"https://www.cpbn.com.na/index/external/8"},
+
+  {cat:"tender", photo:"ict", title:"e-Procurement Portal", org:"Government of Namibia",
+   field:"Multi-sector / All Industries", qualification:"N/A — business registration required", experience:"N/A", published:"Rolling", due:"Varies per notice", publishedAt:null, dueAt:null,
+   desc:"Government-wide electronic procurement system publishing e-tender notices, deadlines and bid documents.", url:"https://eprocurement.gov.na/"},
+
+  {cat:"tender", photo:"handshake", title:"NPC Tenders Archive", org:"National Planning Commission (NPC)",
+   field:"Consulting, Research & ICT Services", qualification:"N/A — business registration required", experience:"N/A", published:"Rolling", due:"Varies per notice", publishedAt:null, dueAt:null,
+   desc:"Includes bid cancellations, requests for proposals (e.g. National HR Development Plan formulation) and IT/services procurement.", url:"https://www.npc.gov.na/tenders/"},
+
+  {cat:"tender", photo:"finance", title:"Tenders", org:"Namibia Statistics Agency (NSA)",
+   field:"Statistics & Data Services", qualification:"N/A — business registration required", experience:"N/A",
+   published:"2026 Annual Procurement Plan", due:NS, publishedAt:"2026-01-15T08:00:00", dueAt:null,
+   desc:"Open tenders, RFQs, RFPs and bid evaluation reports issued by Namibia's national statistics body, including recent consultancy calls for the NSA Strategy 2027–2030.", url:"https://nsa.org.na/tenders/"},
+
+  {cat:"tender", photo:"agri", title:"Tenders", org:"Ministry of Environment & Tourism (MEFT)",
+   field:"Environment & Tourism", qualification:"N/A — business registration required", experience:"N/A", published:"Rolling", due:"Varies per notice", publishedAt:null, dueAt:null,
+   desc:"Open bids and procurement opportunities from the environment and tourism ministry.", url:"https://www.meft.gov.na/tenders/"},
+
+  {cat:"tender", photo:"construction", title:"Tenders & Vacancies Board", org:"Ministry of Industrialisation, Mines & Energy (MME)",
+   field:"Mines, Energy & Supplies", qualification:"N/A — business registration required", experience:"N/A", published:"Rolling", due:"Varies per notice", publishedAt:null, dueAt:null,
+   desc:"Combined bids and tender notice board for the mines, energy and industrialisation ministry (e.g. stationery & related supplies).", url:"https://www.mme.gov.na/tenders-vacancies/"},
+
+  {cat:"tender", photo:"handshake", title:"Tenders", org:"Ministry of Defence & Veterans Affairs (MODVA)",
+   field:"Defence", qualification:"N/A — business registration required", experience:"N/A", published:"Rolling", due:"Varies per notice", publishedAt:null, dueAt:null,
+   desc:"Official procurement/tender notices from the defence ministry.", url:"https://modva.gov.na/tenders"},
+
+  {cat:"tender", photo:"ict", title:"Open Bids", org:"Ministry of Justice & Labour Relations (MOJ)",
+   field:"Legal & Justice", qualification:"N/A — business registration required", experience:"N/A",
+   published:"Rolling", due:"Jul 2026 (RFQs)", publishedAt:null, dueAt:"2026-07-31T17:00:00",
+   desc:"Full procurement disclosure suite: open bids (incl. HP desktops and Probook laptops), awards, cancellations and bid-opening reports.", url:"https://moj.gov.na/open-bids"},
+
+  // ===== YOUTH & COMMUNITY DEVELOPMENT =====
+  {cat:"youth", photo:"youth", title:"National Youth Development Fund (NYDF)", org:"Ministry of Finance & Social Grants Management", featured:true,
+   field:"Entrepreneurship & Business Funding", qualification:"Viable business plan required", experience:"N/A — open to new & existing youth enterprises",
+   published:"FY2025/26, ages 18–45", due:"Open — continuous assessment", publishedAt:null, dueAt:null,
+   desc:"Loans at 2–4% interest, no collateral required, via the Development Bank of Namibia, Agribank and the Environmental Investment Fund. N$257m allocated FY2025/26; N$62.3m disbursed to 140 projects, 700+ jobs created.",
+   url:"https://mfpe.gov.na/national-youth-development-fund"},
+
+  {cat:"youth", photo:"edu", title:"National Youth Service — TVET Programme", org:"National Youth Service (NYS)",
+   field:"Vocational & Technical Training", qualification:"Grade 10/12 (varies by trade)", experience:"None required — entry-level trainee programme",
+   published:"2026 intake (11 Mar 2026)", due:"Not specified — see NYS for next intake", publishedAt:"2026-03-11T08:00:00", dueAt:null,
+   desc:"Three-phase programme: National Service Training, Voluntary Services, and Technical & Vocational Education and Training across 11 NQA-accredited skills trades, run at Rietfontein and Henties Bay training centres.",
+   url:"https://www.nys.com.na/programmes/"},
+
+  {cat:"youth", photo:"youth", title:"National Youth Council of Namibia (NYC)", org:"National Youth Council of Namibia",
+   field:"Youth Policy & Coordination", qualification:"N/A", experience:"N/A", published:"Ongoing", due:"N/A", publishedAt:null, dueAt:null,
+   desc:"Statutory body coordinating youth development programmes nationally with government departments and NGOs. Also posts its own staff vacancies periodically.", url:"https://www.nys.com.na/"},
+
+  {cat:"youth", photo:"finance", title:"Namibia Youth Credit Scheme", org:"Ministry of Education, Innovation, Youth, Sport, Arts & Culture (MEIYSAC)",
+   field:"Micro-finance & Entrepreneurship", qualification:"Business proposal required, ages 18–35", experience:"N/A", published:"Ongoing", due:"Open — continuous", publishedAt:null, dueAt:null,
+   desc:"Loan-guarantee scheme supporting unemployed, out-of-school youth to start or expand small businesses, guaranteeing up to 80% of loans from participating financial institutions.",
+   url:"https://www.meiysac.gov.na/index.php/dep/department-youth-sports/youth-services/namibia-youth-credit-scheme"},
+
+  {cat:"youth", photo:"agri", title:"Youth Development Fund", org:"Environmental Investment Fund of Namibia (EIF)",
+   field:"Environment & Green Economy Funding", qualification:"Project/business proposal required", experience:"N/A", published:"Ongoing", due:"Open — continuous", publishedAt:null, dueAt:null,
+   desc:"Supports youth-led environmental and green-economy enterprises with development financing.", url:"https://www.eif.org.na/documents/youth-development-fund"},
+
+  {cat:"youth", photo:"edu", title:"Directorate of Youth", org:"Ministry of Education, Innovation, Youth, Sport, Arts & Culture (MEIYSAC)",
+   field:"Youth Policy & Programmes", qualification:"N/A", experience:"N/A", published:"Ongoing", due:"N/A", publishedAt:null, dueAt:null,
+   desc:"Government directorate overseeing national youth policy, skills development, employment creation and community development initiatives.",
+   url:"https://www.meiysac.gov.na/index.php/dep/department-youth-sports/directorate-of-youth"},
+];
+
+// ---------- SETUP ----------
+const catMeta = {
+  vacancy:{label:"Vacancies", color:"var(--vacancy)"},
+  tender:{label:"Tenders", color:"var(--tender)"},
+  youth:{label:"Youth & Community Development", color:"var(--youth)"},
+};
+const TEN_HOURS = 10*60*60*1000;
+
+function uniqueSorted(arr){ return [...new Set(arr.filter(v => v && v !== NS))].sort(); }
+
+function populateSelect(selectEl, values){
+  values.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    selectEl.appendChild(opt);
+  });
+}
+populateSelect(document.getElementById('filterField'), uniqueSorted(data.map(d=>d.field)));
+populateSelect(document.getElementById('filterQual'), uniqueSorted(data.map(d=>d.qualification)));
+populateSelect(document.getElementById('filterExp'), uniqueSorted(data.map(d=>d.experience)));
+
+const state = { cat:"all", search:"", field:"all", qual:"all", exp:"all" };
+
+function glowState(d){
+  const now = Date.now();
+  if(d.dueAt){
+    const due = new Date(d.dueAt).getTime();
+    if(now > due) return "expired";
+    if(due - now <= TEN_HOURS) return "red";
+  }
+  if(d.publishedAt){
+    const pub = new Date(d.publishedAt).getTime();
+    if(now >= pub && now - pub <= TEN_HOURS) return "green";
+  }
+  return "gold";
+}
+
+function cardHTML(d){
+  const glow = glowState(d);
+  const ribbon = glow === "green" ? `<span class="ribbon new">New</span>`
+               : glow === "red" ? `<span class="ribbon closing">Closing soon</span>` : "";
+  return `
+    <div class="card glow-${glow}">
+      <div class="card-banner">
+        <img src="${PHOTO[d.photo]}" data-cat="${d.cat}" alt="${catMeta[d.cat].label}" loading="lazy"
+             onerror="this.onerror=null;this.src=fallbackImg(this.dataset.cat);">
+        <span class="badge">${catMeta[d.cat].label.split(' ')[0]}</span>
+        ${ribbon}
+      </div>
+      <div class="card-body">
+        <h3>${d.title}</h3>
+        <div class="org">${d.org}</div>
+        <div class="tagrow">
+          <span class="tag">${d.field}</span>
+          <span class="tag">${d.qualification}</span>
+          <span class="tag">${d.experience}</span>
+        </div>
+        <div class="dates">
+          <span>Published: <b>${d.published}</b></span>
+          <span>Due: <b>${d.due}</b></span>
+        </div>
+        <div class="desc">${d.desc}</div>
+        <a class="link" href="${d.url}" target="_blank" rel="noopener">Read full listing on official source →</a>
+      </div>
+    </div>
+  `;
+}
+
+function matches(d){
+  if(glowState(d) === "expired") return false;
+  if(state.cat !== "all" && d.cat !== state.cat) return false;
+  if(state.field !== "all" && d.field !== state.field) return false;
+  if(state.qual !== "all" && d.qualification !== state.qual) return false;
+  if(state.exp !== "all" && d.experience !== state.exp) return false;
+  if(state.search){
+    const q = state.search.toLowerCase();
+    const hay = (d.title+d.org+d.desc+d.field+d.qualification+d.experience).toLowerCase();
+    if(!hay.includes(q)) return false;
+  }
+  return true;
+}
+
+function render(){
+  const filtered = data.filter(matches);
+  document.getElementById('resultsCount').textContent =
+    `${filtered.length} listing${filtered.length===1?'':'s'} matching your filters`;
+
+  // Editor's picks (featured items, not yet expired), respecting category tab but not other filters/search
+  const picksWrap = document.getElementById('picks');
+  const picks = data.filter(d => d.featured && glowState(d) !== "expired" && (state.cat==="all" || d.cat===state.cat));
+  picksWrap.innerHTML = picks.map(d => `
+    <div class="pick-card glow-${glowState(d)}">
+      <div class="pick-banner">
+        <img src="${PHOTO[d.photo]}" data-cat="${d.cat}" alt="${catMeta[d.cat].label}" loading="lazy"
+             onerror="this.onerror=null;this.src=fallbackImg(this.dataset.cat);">
+      </div>
+      <div class="pick-body">
+        <h3>${d.title}</h3>
+        <div class="org">${d.org}</div>
+        <div class="due">Due: ${d.due}</div>
+      </div>
+    </div>
+  `).join('') || `<p class="empty" style="padding:10px 0;">No featured picks in this category.</p>`;
+
+  const sectionsWrap = document.getElementById('sections');
+  sectionsWrap.innerHTML = "";
+  Object.keys(catMeta).forEach(cat => {
+    if(state.cat !== "all" && state.cat !== cat) return;
+    const items = filtered.filter(d => d.cat === cat);
+    if(items.length === 0) return;
+    const sec = document.createElement('div');
+    sec.innerHTML = `
+      <div class="section-title s-${cat}">
+        ${catMeta[cat].label} <span class="count">${items.length} listing${items.length===1?'':'s'}</span>
+      </div>
+      <div class="grid">${items.map(cardHTML).join('')}</div>
+    `;
+    sectionsWrap.appendChild(sec);
+  });
+  if(filtered.length === 0){
+    sectionsWrap.innerHTML = `<p class="empty">No listings match your filters. Try clearing a filter or search term.</p>`;
+  }
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    state.cat = tab.dataset.cat;
+    render();
+  });
+});
+document.getElementById('search').addEventListener('input', e => { state.search = e.target.value.trim(); render(); });
+document.getElementById('filterField').addEventListener('change', e => { state.field = e.target.value; render(); });
+document.getElementById('filterQual').addEventListener('change', e => { state.qual = e.target.value; render(); });
+document.getElementById('filterExp').addEventListener('change', e => { state.exp = e.target.value; render(); });
+
+// Contact form — mailto, no backend required
+document.getElementById('contactForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const name = document.getElementById('cf-name').value.trim();
+  const email = document.getElementById('cf-email').value.trim();
+  const msg = document.getElementById('cf-message').value.trim();
+  const subject = encodeURIComponent("Swala");
+  const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${msg}`);
+  window.location.href = `mailto:spacecode.solutions@outlook.com?subject=${subject}&body=${body}`;
+  document.getElementById('cf-confirm').style.display = 'block';
+});
+
+render();
+// Keep glow states and deadline-based drops live while the page stays open
+setInterval(render, 60000);
+</script>
+
+</body>
+</html>
