@@ -123,7 +123,9 @@
     font-size:12.5px; color:var(--ink-dim); font-weight:500; font-family:ui-monospace,Menlo,Consolas,monospace;
   }
 
-  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px;}
+  /* align-items:start lets cards with more content run visibly longer than their neighbours,
+     newspaper-classifieds style, instead of all cards in a row being stretched to match height. */
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; align-items:start;}
   .card{
     background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
     overflow:hidden; display:flex; flex-direction:column; backdrop-filter:blur(10px);
@@ -268,7 +270,7 @@
       <span><i class="go"></i> Open / standard listing</span>
       <span><i class="r"></i> Closing within 10 hours</span>
     </div>
-    <p>Compiled from public information on official Namibian government and institutional websites (.gov.na, .org.na, .com.na and named agency domains only — no unofficial scraper or aggregator job sites). Listings are removed automatically once their published closing date has passed. Always verify directly on the linked official source before applying, bidding, or signing anything. Information may change after publication; closing dates shown are as published by the issuing institution at time of writing.</p>
+    <p>Compiled from public information on official Namibian government and institutional websites, AND from major private-sector employers' own official career/recruitment portals — banking, telecommunications, mining and retail/FMCG groups among them (.gov.na, .org.na, .com.na, .na and named company domains only — no unofficial scraper or aggregator job sites). Listings are removed automatically once their published closing date has passed. Always verify directly on the linked official source before applying, bidding, or signing anything. Information may change after publication; closing dates shown are as published by the issuing institution at time of writing.</p>
     <p>Swala is made possible by <b style="color:#15130f">Spacecode Solutions</b>, for the people of Namibia. © 2026.</p>
   </div>
 </footer>
@@ -289,6 +291,20 @@ const PHOTO = {
   ict:"https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=700&q=65",
   youth:"https://images.unsplash.com/photo-1529390079861-591de354faf5?auto=format&fit=crop&w=700&q=65",
   handshake:"https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=700&q=65",
+  // Unique per-listing photos for private-sector banking/telecom/mining/retail entries —
+  // each company below gets its own distinct image rather than sharing a category key.
+  bankwindhoek:"https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=700&q=65",
+  fnb:"https://images.unsplash.com/photo-1565514020179-026b92b84bb6?auto=format&fit=crop&w=700&q=65",
+  nedbank:"https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=700&q=65",
+  oldmutual:"https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&w=700&q=65",
+  bon:"https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=700&q=65",
+  mtc:"https://images.unsplash.com/photo-1551836022-d5c8a4fdf6cd?auto=format&fit=crop&w=700&q=65",
+  telecomna:"https://images.unsplash.com/photo-1521405924368-64c5b84bec60?auto=format&fit=crop&w=700&q=65",
+  namdeb:"https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=700&q=65",
+  rossing:"https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=700&q=65",
+  swakopuranium:"https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=700&q=65",
+  olgroup:"https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=700&q=65",
+  namdock:"https://images.unsplash.com/photo-1605648916361-9bc12ad6a569?auto=format&fit=crop&w=700&q=65",
 };
 const NS = "Not specified";
 
@@ -581,6 +597,82 @@ const data = [
    field:"Youth Policy & Programmes", qualification:"N/A", experience:"N/A", published:"Ongoing", due:"N/A", publishedAt:null, dueAt:null,
    desc:"Government directorate overseeing national youth policy, skills development, employment creation and community development initiatives.",
    url:"https://www.meiysac.gov.na/index.php/dep/department-youth-sports/directorate-of-youth"},
+
+  // ===== PRIVATE SECTOR — BANKING & FINANCIAL SERVICES =====
+  {cat:"vacancy", photo:"bankwindhoek", title:"Commercial Managers & Emerging Bankers Wanted", org:"Bank Windhoek (Capricorn Group)", featured:true,
+   field:"Banking & Financial Services", qualification:"Grade 12 to Diploma/Degree (varies by post)", experience:"Entry-level to managerial",
+   published:"Ongoing — portal updated regularly", due:"Not specified — see portal for current closing dates", publishedAt:null, dueAt:null,
+   desc:"Openings have included a Commercial Manager for the Maerua Mall branch, the 18-month Emerging Bankers Programme open to Grade 12 graduates across the Far Northern, Northern, Southern and Eastern regions, and the Capricorn Group Young Talent Development Programme — a 12-month graduate traineeship spanning banking, insurance, asset management and microfinance.",
+   url:"https://careers.bankwindhoek.com.na/applicant/index.php"},
+
+  {cat:"vacancy", photo:"fnb", title:"Bank Officers, Analysts & Managers Wanted", org:"First National Bank (FNB) Namibia",
+   field:"Banking & Financial Services", qualification:"Diploma/Degree (varies by post)", experience:"Varies by post",
+   published:"Ongoing — portal updated regularly", due:"Not specified — see portal for current closing dates", publishedAt:null, dueAt:null,
+   desc:"FNB Namibia's careers portal lists open posts across Head, Officer, Analyst and Manager grades, with recent hiring rounds based in Windhoek. Register a profile to apply directly and be notified as new posts open.",
+   url:"https://www.fnbnamibia.com.na/fnb-careers/index.html"},
+
+  {cat:"vacancy", photo:"nedbank", title:"Credit Risk Analysts, Consultants & Retail Bankers Wanted", org:"Nedbank Namibia",
+   field:"Banking & Financial Services", qualification:"Grade 10/12 to Diploma/Degree (varies by post)", experience:"Internship to experienced professional",
+   published:"Ongoing — portal updated regularly", due:"Not specified — see portal for current closing dates", publishedAt:null, dueAt:null,
+   desc:"Current categories include Credit Risk Analyst, Consultant and Experienced Professional posts, plus internship placements for students and recent graduates, with positions across Windhoek, Swakopmund, Walvis Bay, Okahandja, Otjiwarongo and Rundu.",
+   url:"https://nedbank.com.na/content/nedbank-namibia/desktop/na/en/careers.html"},
+
+  {cat:"vacancy", photo:"oldmutual", title:"Financial Advisors, Technicians & Sales Consultants Wanted", org:"Old Mutual Namibia",
+   field:"Insurance & Financial Services", qualification:"Varies by post", experience:"Varies by post",
+   published:"Ongoing — portal updated regularly", due:"Not specified — see portal for current closing dates", publishedAt:null, dueAt:null,
+   desc:"Roles span Sales & Distribution, Finance, Marketing and Accounting — recent categories have included Advisor, Technician and Specialist posts across Windhoek, Swakopmund, Walvis Bay and other towns.",
+   url:"https://www.oldmutual.com.na/careers/"},
+
+  {cat:"vacancy", photo:"bon", title:"Business Analysts & Senior Officers Wanted", org:"Bank of Namibia (BoN)",
+   field:"Central Banking & Financial Regulation", qualification:"Degree (Economics, Finance, Business or related)", experience:"Mid-level to senior",
+   published:"Ongoing — portal updated regularly", due:"Not specified — see portal for current closing dates", publishedAt:null, dueAt:null,
+   desc:"The central bank's e-recruitment portal regularly carries posts such as Senior Officer, Business Analyst, Officer and Administrative Assistant, based in Windhoek and Walvis Bay.",
+   url:"https://www.bon.com.na/Vacancies.aspx"},
+
+  // ===== PRIVATE SECTOR — TELECOMMUNICATIONS & TECHNOLOGY =====
+  {cat:"vacancy", photo:"mtc", title:"Data Analytics & Enterprise Service Managers Wanted", org:"Mobile Telecommunications Limited (MTC)",
+   field:"Telecommunications & ICT", qualification:"Degree (IT, Business or related)", experience:"Managerial / mid-level",
+   published:"Ongoing — portal updated regularly", due:"Not specified — see portal for current closing dates", publishedAt:null, dueAt:null,
+   desc:"Recent postings have included Manager: Data Analytics, Manager: Enterprise Service Support, Programme Manager and Database Systems Administrator, with vacancies spread across the Khomas, Erongo, Karas, Hardap and Ohangwena regions.",
+   url:"https://www.mtc.com.na/careers"},
+
+  {cat:"vacancy", photo:"telecomna", title:"Electricians, Technicians & Bursary Officers Wanted", org:"Telecom Namibia",
+   field:"Telecommunications", qualification:"Trade certificate to Degree (varies by post)", experience:"Varies by post",
+   published:"Ongoing — portal updated regularly", due:"Not specified — see portal for current closing dates", publishedAt:null, dueAt:null,
+   desc:"The state-owned national operator's vacancies page has carried posts for Chief Commercial Officer, Electrician/Technician and Specialist roles, plus an annual student Bursary Programme administered through its Bursary Officer.",
+   url:"https://www.telecom.na/vacancies"},
+
+  // ===== PRIVATE SECTOR — MINING & RESOURCES =====
+  {cat:"vacancy", photo:"namdeb", title:"Mining Engineers & Business Improvement Managers — Register Your Interest", org:"Namdeb Diamond Corporation",
+   field:"Mining — Diamonds", qualification:"Degree (Mining, Engineering or related)", experience:"Mid to senior",
+   published:"Checked 23 Jun 2026", due:"Not specified — no open posts at time of writing", publishedAt:null, dueAt:null,
+   desc:"Namdeb's vacancies page currently shows no open posts; past rounds have included Business Improvement Manager and Mining Engineer roles in Windhoek and Walvis Bay/Oranjemund. Register a profile on the portal to be notified the moment new posts open.",
+   url:"https://namdeb.com/opportunities/vacancies/"},
+
+  {cat:"vacancy", photo:"rossing", title:"Mining Engineers, Buyers & Plant Operators Wanted", org:"Rössing Uranium", featured:true,
+   field:"Mining — Uranium", qualification:"Bachelor's Degree for professional posts (Engineering, Mine Planning or related)", experience:"Graduate to senior",
+   published:"Ongoing — portal updated regularly", due:"Not specified — see portal for current closing dates", publishedAt:null, dueAt:null,
+   desc:"Around eight current openings span Operator: Process Control Centre, a ten-place Graduate Development Programme, and Principal Advisor: Mine Planning, alongside Engineer, Buyer and Driver posts. Rössing is committed to fostering growth, innovation, and a safe, inclusive workplace.",
+   url:"https://www.rossing.com/our-people/careers/"},
+
+  {cat:"vacancy", photo:"swakopuranium", title:"Crane Operators, Riggers & Plant Operators Wanted", org:"Swakop Uranium (Husab Mine)",
+   field:"Mining — Uranium", qualification:"Trade certificate to Degree (Mining, Engineering, Geology for professional posts)", experience:"Artisan to senior",
+   published:"Ongoing — portal updated regularly", due:"Not specified — see portal for current closing dates", publishedAt:null, dueAt:null,
+   desc:"Recent recruitment rounds at the Husab Mine near Swakopmund have included Senior Officer, Operator: Crane, Artisan Rigger, EXCO Centre Administrator, Planning Superintendent and Operator: Plant roles, with annual salaries for qualifying posts typically ranging from roughly N$400,000 to N$700,000.",
+   url:"https://swakopuraniumjobs.mcidirecthire.com/"},
+
+  // ===== PRIVATE SECTOR — RETAIL, FMCG & INDUSTRIAL =====
+  {cat:"vacancy", photo:"olgroup", title:"Brewers, Retail & Dairy Production Roles Wanted", org:"Ohlthaver & List (O&L) Group", featured:true,
+   field:"Retail, FMCG & Industrial", qualification:"Varies by subsidiary and post", experience:"Varies by post",
+   published:"Ongoing — portal updated regularly", due:"Not specified — see portal for current closing dates", publishedAt:null, dueAt:null,
+   desc:"Namibia's largest privately held corporate group recruits centrally for vacancies across its subsidiaries — Namibia Breweries Limited, Pick n Pay Namibia, Namibia Dairies, Kraatz Marine and its IT/Tech divisions. One profile lets you apply across every O&L Group company from a single portal.",
+   url:"https://careers.ol.na/"},
+
+  {cat:"vacancy", photo:"namdock", title:"Engineers, Quality Assurance & Finance Roles Wanted", org:"Namdock",
+   field:"Marine Engineering & Ship Repair", qualification:"Trade certificate to Degree (varies by post)", experience:"Varies by post",
+   published:"Ongoing — portal updated regularly", due:"Not specified — see portal for current closing dates", publishedAt:null, dueAt:null,
+   desc:"Namibia's main ship-repair and marine engineering yard, based at Walvis Bay, recruits through its own online talent-database portal — past rounds have included Quality Assurance Superintendent, Coatings Technical Superintendent, IT Network Analyst, Financial Accountant and Supervisor posts.",
+   url:"https://namdock.com/recruitment/"},
 ];
 
 // ---------- SETUP ----------
