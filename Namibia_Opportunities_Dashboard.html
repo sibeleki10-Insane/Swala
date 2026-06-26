@@ -6,94 +6,117 @@
 <title>Namibia Opportunities Dashboard</title>
 <style>
   :root{
-    --bg:#ffffff; --panel:#ffffff; --panel-2:#fbf6ee; --border:#e6d9c3;
-    --text:#3a2a18; --muted:#8a7457; --accent:#8a5a2b; --accent-2:#b8860b;
+    --bg:#fbf8f2; --panel:rgba(255,255,255,.6); --panel-2:rgba(255,255,255,.45); --border:rgba(199,154,60,.28);
+    --border-strong:rgba(138,90,43,.4);
+    --text:#2b2014; --muted:#8a7457; --accent:#8a5a2b; --accent-2:#b8860b;
     --gold:#c79a3c; --warn:#b8860b; --tender:#8a5a2b; --vacancy:#b8860b; --youth:#7a8c4c;
-    --radius:14px;
+    --radius:20px;
   }
   *{box-sizing:border-box;}
+  @keyframes riseIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
   body{
     margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:#ffffff;
+    background:var(--bg);
+    background-image:
+      radial-gradient(circle at 8% 0%, rgba(199,154,60,.30), transparent 42%),
+      radial-gradient(circle at 92% 8%, rgba(138,90,43,.20), transparent 45%),
+      radial-gradient(circle at 50% 100%, rgba(122,140,76,.12), transparent 50%);
+    background-attachment:fixed;
     color:var(--text); min-height:100vh; padding-bottom:60px;
   }
   header{
-    padding:36px 24px 22px; max-width:1180px; margin:0 auto;
-    border-bottom:1px solid var(--border);
+    padding:56px 24px 26px; max-width:1180px; margin:0 auto;
   }
-  header h1{font-size:28px; margin:0 0 6px; letter-spacing:-0.01em; color:var(--accent);}
-  header p.sub{color:var(--muted); margin:0 0 18px; font-size:15px; max-width:780px;}
+  header h1{font-size:40px; margin:0 0 10px; letter-spacing:-0.02em; font-weight:800; color:var(--text);}
+  header p.sub{color:var(--muted); margin:0 0 22px; font-size:16px; max-width:680px; font-weight:400; line-height:1.5;}
   .banner{
-    background:var(--panel-2); border:1px solid var(--gold); border-radius:var(--radius);
-    padding:14px 18px; font-size:13.5px; color:var(--muted); display:flex; gap:10px; align-items:flex-start;
+    background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius);
+    padding:16px 20px; font-size:13.5px; color:var(--muted); display:flex; gap:10px; align-items:flex-start;
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    box-shadow:0 8px 30px rgba(138,90,43,.08);
   }
   .banner b{color:var(--accent);}
   .controls{
-    max-width:1180px; margin:18px auto 0; padding:0 24px; display:flex; gap:10px; flex-wrap:wrap;
+    max-width:1180px; margin:20px auto 0; padding:0 24px; display:flex; gap:10px; flex-wrap:wrap; position:relative;
   }
   .controls input[type="text"]{
-    flex:1; min-width:220px; background:#ffffff; border:1px solid var(--border); color:var(--text);
-    padding:11px 14px; border-radius:10px; font-size:14px; outline:none;
+    flex:1; min-width:220px; background:var(--panel); border:1px solid var(--border); color:var(--text);
+    padding:13px 18px 13px 38px; border-radius:999px; font-size:14.5px; outline:none;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    transition:border-color .2s, box-shadow .2s;
   }
-  .controls input:focus{border-color:var(--gold);}
+  .controls::before{
+    content:"⌘"; position:absolute; left:38px; top:50%; transform:translateY(-50%);
+    color:var(--gold); font-size:14px; pointer-events:none; opacity:.8;
+  }
+  .controls input:focus{border-color:var(--gold); box-shadow:0 0 0 4px rgba(199,154,60,.15), 0 0 22px rgba(199,154,60,.18);}
   .controls input::placeholder{color:var(--muted);}
   .chip{
-    background:#ffffff; border:1px solid var(--border); color:var(--muted);
-    padding:9px 16px; border-radius:999px; font-size:13.5px; cursor:pointer; user-select:none;
-    transition:all .15s;
+    background:var(--panel); border:1px solid var(--border); color:var(--muted);
+    padding:10px 18px; border-radius:999px; font-size:13.5px; cursor:pointer; user-select:none;
+    transition:all .2s; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
   }
+  .chip:hover{border-color:var(--border-strong); transform:translateY(-1px);}
   .chip.active{color:#ffffff; font-weight:600; border-color:transparent;}
-  .chip[data-cat="all"].active{background:var(--accent);}
-  .chip[data-cat="vacancy"].active{background:var(--vacancy);}
-  .chip[data-cat="tender"].active{background:var(--tender);}
-  .chip[data-cat="youth"].active{background:var(--youth);}
+  .chip[data-cat="all"].active{background:var(--accent); box-shadow:0 0 18px rgba(138,90,43,.45);}
+  .chip[data-cat="vacancy"].active{background:var(--vacancy); box-shadow:0 0 18px rgba(184,134,11,.45);}
+  .chip[data-cat="tender"].active{background:var(--tender); box-shadow:0 0 18px rgba(138,90,43,.45);}
+  .chip[data-cat="youth"].active{background:var(--youth); box-shadow:0 0 18px rgba(122,140,76,.45);}
 
   main{max-width:1180px; margin:0 auto; padding:24px;}
   .section-title{
-    display:flex; align-items:center; gap:10px; margin:34px 0 14px; font-size:18px; font-weight:600;
-    color:var(--accent);
+    display:flex; align-items:center; gap:10px; margin:46px 0 16px; font-size:20px; font-weight:700;
+    color:var(--text);
+  }
+  .section-title .kicker{
+    font-size:10.5px; text-transform:uppercase; letter-spacing:.16em; color:var(--gold); font-weight:700;
+    background:rgba(199,154,60,.12); border:1px solid var(--border); padding:3px 9px; border-radius:999px;
+    margin-right:2px;
   }
   .dot{width:10px; height:10px; border-radius:50%;}
-  .dot.vacancy{background:var(--vacancy);} .dot.tender{background:var(--tender);} .dot.youth{background:var(--youth);}
+  .dot.vacancy{background:var(--vacancy); box-shadow:0 0 8px var(--vacancy);} .dot.tender{background:var(--tender); box-shadow:0 0 8px var(--tender);} .dot.youth{background:var(--youth); box-shadow:0 0 8px var(--youth);}
   .count{
     font-size:12.5px; color:var(--muted); background:var(--panel-2); border:1px solid var(--border);
     padding:2px 9px; border-radius:999px; font-weight:500;
   }
-  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:14px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:16px;}
   .card{
-    background:#ffffff; border:1px solid var(--border); border-radius:var(--radius);
-    padding:18px; display:flex; flex-direction:column; gap:10px; transition:border-color .15s, transform .15s, box-shadow .15s;
-    box-shadow:0 1px 3px rgba(138,90,43,.06);
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
+    padding:20px; display:flex; flex-direction:column; gap:10px; transition:border-color .2s, transform .2s, box-shadow .2s;
+    box-shadow:0 4px 18px rgba(138,90,43,.06);
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    animation:riseIn .5s ease both;
   }
-  .card:hover{border-color:var(--gold); transform:translateY(-2px); box-shadow:0 6px 18px rgba(138,90,43,.12);}
+  .card:hover{border-color:var(--gold); transform:translateY(-3px); box-shadow:0 10px 30px rgba(199,154,60,.22), 0 0 0 1px rgba(199,154,60,.25);}
   .card .badge{
     align-self:flex-start; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em;
     padding:3px 9px; border-radius:6px;
   }
-  .badge.vacancy{background:rgba(184,134,11,.12); color:var(--vacancy);}
-  .badge.tender{background:rgba(138,90,43,.12); color:var(--tender);}
-  .badge.youth{background:rgba(122,140,76,.12); color:var(--youth);}
-  .card h3{margin:0; font-size:16px; line-height:1.35; color:var(--text);}
+  .badge.vacancy{background:rgba(184,134,11,.14); color:var(--vacancy);}
+  .badge.tender{background:rgba(138,90,43,.14); color:var(--tender);}
+  .badge.youth{background:rgba(122,140,76,.14); color:var(--youth);}
+  .card h3{margin:0; font-size:17px; line-height:1.35; color:var(--text); font-weight:700; letter-spacing:-.01em;}
   .card .meta{font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:3px;}
-  .card .desc{font-size:13.5px; color:#5c4a36; line-height:1.5;}
+  .card .desc{font-size:13.5px; color:#5c4a36; line-height:1.55;}
   .card a.link{
     margin-top:auto; font-size:13.5px; color:var(--accent); text-decoration:none; font-weight:600;
-    display:flex; align-items:center; gap:6px;
+    display:flex; align-items:center; gap:6px; transition:color .2s, gap .2s;
   }
-  .card a.link:hover{color:var(--gold); text-decoration:underline;}
+  .card a.link:hover{color:var(--gold); gap:9px;}
   footer{
-    max-width:1180px; margin:40px auto 0; padding:0 24px; color:var(--muted); font-size:12.5px;
-    border-top:1px solid var(--border); padding-top:18px;
+    max-width:1180px; margin:50px auto 0; padding:20px 24px; color:var(--muted); font-size:12.5px;
+    background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
   }
   .hidden{display:none !important;}
-  @media (max-width:600px){ header h1{font-size:23px;} }
+  @media (max-width:600px){ header h1{font-size:28px;} }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🇳🇦 Namibia Opportunities Dashboard</h1>
-  <p class="sub">A curated snapshot of vacancies, tenders, and youth &amp; community development opportunities from official Namibian government, national institution, and major private-sector employer websites.</p>
+  <h1>Namibia Opportunities</h1>
+  <p class="sub">Three live modules — vacancies, tenders, and youth &amp; community development — curated from official Namibian government, national institution, and major private-sector employer sources.</p>
   <div class="banner">
     ⚠️ <div><b>This is a one-time snapshot</b>, compiled 24 June 2026 (16:50 UTC) from official .gov.na / agency websites and major private-sector employers' own career portals. Portals don't expose live data feeds, so this page does not auto-refresh — click "Open official source" on any card to see the current live listing, or ask me to re-run this research anytime to refresh the snapshot.</div>
   </div>
@@ -172,7 +195,7 @@ function render(filterCat, query){
 
     const title = document.createElement('div');
     title.className = "section-title";
-    title.innerHTML = `<span class="dot ${sec.icon}"></span> ${sec.label} <span class="count">${items.length}</span>`;
+    title.innerHTML = `<span class="kicker">Module</span><span class="dot ${sec.icon}"></span> ${sec.label} <span class="count">${items.length}</span>`;
     main.appendChild(title);
 
     const grid = document.createElement('div');
